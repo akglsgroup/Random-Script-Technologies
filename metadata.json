@@ -1,0 +1,6 @@
+{
+  "name": "Random Script Technologies",
+  "description": "Enterprise AI software development and digital transformation. We build custom AI agents, web/mobile applications, SaaS products, IoT solutions, and cloud architectures for future-ready businesses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
