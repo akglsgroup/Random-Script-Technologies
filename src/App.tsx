@@ -10,6 +10,9 @@ import WhyChooseSection from './components/WhyChooseSection';
 import ResourcesSection from './components/ResourcesSection';
 import ContactSection from './components/ContactSection';
 
+// Pillar Page
+import AIDevelopmentCompany from './pages/AIDevelopmentCompany';
+
 // Overlays
 import LeadPortal from './components/LeadPortal';
 import AIChatExpert from './components/AIChatExpert';
@@ -21,11 +24,31 @@ import { Lead } from './types';
 
 export default function App() {
   const [leadCount, setLeadCount] = useState<number>(0);
+  const [currentView, setCurrentView] = useState<'home' | 'ai-development-company'>('home');
   
   // Overlay visibility states
   const [isPortalOpen, setPortalOpen] = useState<boolean>(false);
   const [isChatOpen, setChatOpen] = useState<boolean>(false);
   const [isProposalOpen, setProposalOpen] = useState<boolean>(false);
+
+  // Synchronize routing state with URL hash
+  useEffect(() => {
+    const handleHashRouter = () => {
+      const hash = window.location.hash;
+      if (hash.includes('/ai-development-company')) {
+        setCurrentView('ai-development-company');
+        window.scrollTo({ top: 0, behavior: 'instant' as any });
+      } else {
+        setCurrentView('home');
+      }
+    };
+
+    // Run once on load
+    handleHashRouter();
+
+    window.addEventListener('hashchange', handleHashRouter);
+    return () => window.removeEventListener('hashchange', handleHashRouter);
+  }, []);
 
   // Load and count existing leads from user's local storage session
   useEffect(() => {
@@ -58,35 +81,45 @@ export default function App() {
         leadCount={leadCount} 
       />
 
-      {/* Hero Header area */}
-      <Hero 
-        onOpenChat={() => setChatOpen(true)} 
-        onOpenProposal={() => setProposalOpen(true)} 
-      />
-
-      {/* Main content sections */}
+      {/* Main content sections based on route state */}
       <main className="relative">
         
-        {/* Welcome block */}
-        <WelcomeContent />
+        {currentView === 'home' ? (
+          <>
+            {/* Hero Header area */}
+            <Hero 
+              onOpenChat={() => setChatOpen(true)} 
+              onOpenProposal={() => setProposalOpen(true)} 
+            />
 
-        {/* Bento core capabilities section */}
-        <ServiceExplorer />
+            {/* Welcome block */}
+            <WelcomeContent />
 
-        {/* Live operational dashboard cockpit */}
-        <FeaturedSolutions />
+            {/* Bento core capabilities section */}
+            <ServiceExplorer />
 
-        {/* Target industries served */}
-        <IndustriesSection />
+            {/* Live operational dashboard cockpit */}
+            <FeaturedSolutions />
 
-        {/* Agile chronological process framework */}
-        <ProcessSection />
+            {/* Target industries served */}
+            <IndustriesSection />
 
-        {/* Why choose values points */}
-        <WhyChooseSection />
+            {/* Agile chronological process framework */}
+            <ProcessSection />
 
-        {/* Resources topic search centers */}
-        <ResourcesSection />
+            {/* Why choose values points */}
+            <WhyChooseSection />
+
+            {/* Resources topic search centers */}
+            <ResourcesSection />
+          </>
+        ) : (
+          <AIDevelopmentCompany 
+            onBackToHome={() => { window.location.hash = '#/'; }}
+            onOpenConsultation={() => setChatOpen(true)}
+            onOpenProposal={() => setProposalOpen(true)}
+          />
+        )}
 
         {/* Bottom consultation forms & checkboxes capture */}
         <ContactSection onLeadCaptured={updateLeadCount} />

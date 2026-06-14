@@ -28,7 +28,7 @@ export default function Navbar({ onOpenPortal, onOpenConsultation, leadCount }: 
         <div className="flex items-center justify-between">
           
           {/* Logo Brand */}
-          <a href="#welcome" className="flex items-center space-x-2 w-fit">
+          <a href="#/" className="flex items-center space-x-2 w-fit cursor-pointer">
             <div className="w-8 h-8 rounded-lg bg-linear-to-tr from-sky-500 to-indigo-600 flex items-center justify-center font-mono font-extrabold text-white text-base">
               R
             </div>
@@ -44,6 +44,12 @@ export default function Navbar({ onOpenPortal, onOpenConsultation, leadCount }: 
 
           {/* Links for desktop navigation */}
           <div className="hidden lg:flex items-center space-x-6">
+            <a href="#/" className="text-xs text-gray-400 hover:text-white font-semibold transition">
+              Home
+            </a>
+            <a href="#/ai-development-company" className="text-xs text-cyan-400 hover:text-cyan-300 font-bold transition flex items-center gap-1 bg-cyan-950/20 px-2.5 py-1 rounded-lg border border-cyan-900/35">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> AI Pillar Service
+            </a>
             <a href="#services-head" className="text-xs text-gray-400 hover:text-white font-semibold transition">
               Core Capabilities
             </a>
