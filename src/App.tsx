@@ -31,23 +31,102 @@ export default function App() {
   const [isChatOpen, setChatOpen] = useState<boolean>(false);
   const [isProposalOpen, setProposalOpen] = useState<boolean>(false);
 
-  // Synchronize routing state with URL hash
+  // Synchronize routing state with URL path
   useEffect(() => {
-    const handleHashRouter = () => {
-      const hash = window.location.hash;
-      if (hash.includes('/ai-development-company')) {
+    const handlePathRouter = () => {
+      const path = window.location.pathname;
+      if (path === '/ai-development-company' || path === '/ai-development-company/') {
         setCurrentView('ai-development-company');
         window.scrollTo({ top: 0, behavior: 'instant' as any });
       } else {
         setCurrentView('home');
+        
+        // Custom scroll handler that activates smooth scroll to sections if we specify them via search param
+        const urlParams = new URLSearchParams(window.location.search);
+        const scrollTarget = urlParams.get('scroll');
+        if (scrollTarget) {
+          setTimeout(() => {
+            const element = document.getElementById(scrollTarget);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 150);
+        }
       }
     };
 
     // Run once on load
-    handleHashRouter();
+    handlePathRouter();
 
-    window.addEventListener('hashchange', handleHashRouter);
-    return () => window.removeEventListener('hashchange', handleHashRouter);
+    // Listen to history transitions
+    window.addEventListener('popstate', handlePathRouter);
+    return () => window.removeEventListener('popstate', handlePathRouter);
+  }, []);
+
+  // Set page titles and SEO meta descriptions adaptively
+  useEffect(() => {
+    if (currentView === 'ai-development-company') {
+      document.title = "AI Development Company | Custom AI Solutions & AI Agents | Random Script Technologies";
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.setAttribute('name', 'description');
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.setAttribute('content', 'Leading AI Development Company delivering Generative AI, AI Agents, Machine Learning, AI Chatbots, Enterprise AI Solutions, and Intelligent Automation for businesses worldwide.');
+    } else {
+      document.title = "Random Script Technologies | AI, Software & Intelligent Automation";
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', 'Trusted Technology Partner helping startups, mid-sized businesses, and enterprise conglomerates leverage Artificial Intelligence, Generative AI, Agentic AI, Cloud Computing, IoT, and Digital Engineering.');
+      }
+    }
+  }, [currentView]);
+
+  // Intercept all local anchor selections to transition cleanly via HTML5 History without page restarts
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a');
+      if (anchor && anchor.href) {
+        try {
+          const url = new URL(anchor.href);
+          if (url.origin === window.location.origin) {
+            const pathname = url.pathname;
+            const currentPathname = window.location.pathname;
+
+            // Handle main transitions
+            if (pathname === '/ai-development-company' || pathname === '/') {
+              // If we are changing route, handle client-side
+              if (pathname !== currentPathname) {
+                e.preventDefault();
+                if (pathname === '/' && url.hash) {
+                  const elementId = url.hash.substring(1);
+                  window.history.pushState({}, '', `/?scroll=${elementId}`);
+                } else {
+                  window.history.pushState({}, '', pathname);
+                }
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              } else if (pathname === '/' && url.hash) {
+                // Clicking section target link from home page itself
+                const elementId = url.hash.substring(1);
+                const el = document.getElementById(elementId);
+                if (el) {
+                  e.preventDefault();
+                  el.scrollIntoView({ behavior: 'smooth' });
+                  window.history.pushState({}, '', `/#${elementId}`);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error handling pushState interceptor', error);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
   }, []);
 
   // Load and count existing leads from user's local storage session
@@ -115,7 +194,10 @@ export default function App() {
           </>
         ) : (
           <AIDevelopmentCompany 
-            onBackToHome={() => { window.location.hash = '#/'; }}
+            onBackToHome={() => { 
+              window.history.pushState({}, '', '/'); 
+              window.dispatchEvent(new PopStateEvent('popstate')); 
+            }}
             onOpenConsultation={() => setChatOpen(true)}
             onOpenProposal={() => setProposalOpen(true)}
           />
